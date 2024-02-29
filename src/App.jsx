@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react'
 import './App.css'
 import { Square } from './components/square'
-import {TURNS, WINNER_COMBOS} from "./constants.js"
+import { TURNS, WINNER_COMBOS } from "./constants.js"
 import { checkWinnerFrom, checkEndGame } from './logic/board.js'
 import { WinnerModal } from './components/winnerModal.jsx'
 import confetti from 'canvas-confetti'
@@ -10,11 +10,21 @@ import confetti from 'canvas-confetti'
 
 
 function App() {
-  const [board, setBoard] = useState(Array(9).fill(null)) //initialised state
-  console.log(board)
+  console.log("render")
+  const [board, setBoard] = useState(() => {
+    console.log("initialized state")
+    const boardfromStorage = window.localStorage.getItem('board')
+    if (boardfromStorage) return JSON.parse(boardfromStorage)
+    return Array(9).fill(null) //initialised state
+  })
 
-  const [turn, setTurn] = useState(TURNS.X) //state to check who is next
- 
+  console.log(board)
+  //state to check who is next but also save it in localstogare
+  const [turn, setTurn] = useState(() => {
+    const turnFromStorage = window.localStorage.getItem('turn')
+    return turnFromStorage ?? TURNS.X
+  })
+
   // null es que no hay ganador, false es que hay un empate
   const [winner, setWinner] = useState(null)
 
@@ -23,7 +33,9 @@ function App() {
     setTurn(TURNS.X)
     setWinner(null)
 
-    resetGameStorage()
+    // resetGameStorage()
+    window.localStorage.removeItem('board')
+    window.localStorage.removeItem('turns')
   }
 
 
@@ -39,7 +51,10 @@ function App() {
     const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
     setTurn(newTurn)
 
-
+    //save the game
+    window.localStorage.setItem('board', JSON.stringify(newBoard)) //we save the state of the board, but we need to convert to string bc if we not stringify will save the awway
+    window.localStorage.setItem('turn', turn)
+    //check if there is a winner
     const newWinner = checkWinnerFrom(newBoard)
     if (newWinner) {
       confetti()
@@ -50,7 +65,7 @@ function App() {
   }
 
 
-  
+
 
   return (
     <main className='board'>
@@ -81,7 +96,7 @@ function App() {
         </Square>
       </section>
 
-      <WinnerModal resetGame={resetGame} winner={winner}/>
+      <WinnerModal resetGame={resetGame} winner={winner} />
     </main>
   )
 
