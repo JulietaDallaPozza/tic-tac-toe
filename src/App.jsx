@@ -53,7 +53,7 @@ function App() {
 
     //save the game
     window.localStorage.setItem('board', JSON.stringify(newBoard)) //we save the state of the board, but we need to convert to string bc if we not stringify will save the awway
-    window.localStorage.setItem('turn', turn)
+    window.localStorage.setItem('turn', newTurn)
     //check if there is a winner
     const newWinner = checkWinnerFrom(newBoard)
     if (newWinner) {
